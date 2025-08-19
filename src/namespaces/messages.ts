@@ -19,39 +19,39 @@ export class MessagesNamespace {
 
     async sendText(request: MessageTextRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendText', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendImage(request: MessageImageRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendImage', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendFile(request: MessageFileRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendFile', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendVoice(request: MessageVoiceRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendVoice', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendVideo(request: MessageVideoRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendVideo', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendLocation(request: MessageLocationRequest): Promise<WAMessage> {
         const response = await this.http.post('/api/sendLocation', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendContactVcard(
         request: MessageContactVcardRequest
     ): Promise<WAMessage> {
         const response = await this.http.post('/api/sendContactVcard', request);
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async sendSeen(request: SendSeenRequest): Promise<void> {

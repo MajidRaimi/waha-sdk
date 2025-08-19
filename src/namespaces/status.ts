@@ -52,6 +52,6 @@ export class StatusNamespace {
         const response = await this.http.get(
             `/api/${session}/status/new-message-id`
         );
-        return response.data;
+        return response.data as NewMessageIDResponse;
     }
 }

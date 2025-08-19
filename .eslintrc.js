@@ -39,8 +39,6 @@ module.exports = {
         '@typescript-eslint/no-unsafe-member-access': 'warn',
         '@typescript-eslint/no-unsafe-call': 'warn',
         '@typescript-eslint/no-unsafe-return': 'warn',
-        'prefer-const': 'off',
-        '@typescript-eslint/prefer-const': 'error',
         '@typescript-eslint/prefer-readonly': 'warn',
         '@typescript-eslint/prefer-nullish-coalescing': 'warn',
         '@typescript-eslint/prefer-optional-chain': 'warn',
@@ -51,7 +49,7 @@ module.exports = {
         // General ESLint rules
         'no-console': 'warn',
         'no-debugger': 'error',
-        'prefer-const': 'error',
+        'prefer-const': 'off', // Using TypeScript version
         'no-var': 'error',
         'object-shorthand': 'warn',
         'prefer-template': 'warn',

@@ -16,7 +16,7 @@ export class AuthNamespace {
         const response = await this.http.get(`/api/${session}/auth/qr`, {
             params: { format },
         });
-        return response.data;
+        return response.data as Base64File | QRCodeValue | string;
     }
 
     async requestCode(
