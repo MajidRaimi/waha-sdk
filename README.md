@@ -1,18 +1,20 @@
-# WAHA SDK - TypeScript WhatsApp HTTP API Client
+# 📱 WAHA SDK - TypeScript WhatsApp HTTP API Client
 
-<div align="center">
-  <img src="https://waha.devlike.pro/images/logo.svg" alt="WAHA Logo" width="200" height="200">
+<div align="center" style="background: linear-gradient(135deg, #95db77 0%, #a8e581 100%); padding: 40px; border-radius: 20px; margin: 20px 0; box-shadow: 0 8px 32px rgba(149, 219, 119, 0.3);">
+  <img src="https://waha.devlike.pro/images/logo.svg" alt="WAHA Logo" width="200" height="200" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
   
-  [![npm version](https://badge.fury.io/js/waha-sdk.svg)](https://badge.fury.io/js/waha-sdk)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  <div style="margin-top: 20px;">
+    <a href="https://badge.fury.io/js/waha-sdk"><img src="https://badge.fury.io/js/waha-sdk.svg" alt="npm version" style="margin: 5px;"></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white" alt="TypeScript" style="margin: 5px;"></a>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="margin: 5px;"></a>
+  </div>
 </div>
 
-## Overview
+## 🌟 Overview
 
 **WAHA SDK** is a comprehensive TypeScript/JavaScript client library for the [WAHA (WhatsApp HTTP API)](https://waha.devlike.pro) service. Send WhatsApp messages, manage sessions, handle media, and integrate WhatsApp into your applications with ease.
 
-### Key Features
+### ✨ Key Features
 
 - 🚀 **Zero Dependencies** - Built with native fetch API
 - 📝 **Full TypeScript Support** - Complete type safety and IntelliSense
@@ -21,7 +23,7 @@
 - 🔒 **Production Ready** - Comprehensive error handling and validation
 - 📱 **Complete API Coverage** - All WAHA endpoints supported
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install waha-sdk
@@ -39,7 +41,7 @@ pnpm add waha-sdk
 bun add waha-sdk
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```typescript
 import { WahaClient } from 'waha-sdk';
@@ -47,8 +49,8 @@ import { WahaClient } from 'waha-sdk';
 // Initialize the client
 const client = new WahaClient({
     baseUrl: 'http://localhost:3000', // Your WAHA server URL
-    apiKey: 'your-api-key',           // Your API key
-    timeout: 30000                    // Optional: request timeout in ms
+    apiKey: 'your-api-key', // Your API key
+    timeout: 30000, // Optional: request timeout in ms
 });
 
 // Start a session
@@ -58,13 +60,13 @@ await client.sessions.start('default');
 await client.messages.sendText({
     session: 'default',
     chatId: '1234567890@c.us',
-    text: 'Hello from WAHA SDK! 👋'
+    text: 'Hello from WAHA SDK! 👋',
 });
 ```
 
-## Authentication
+## 🔐 Authentication
 
-### QR Code Authentication (Recommended)
+### 📱 QR Code Authentication (Recommended)
 
 ```typescript
 // Get QR code as base64 image
@@ -80,26 +82,26 @@ const session = await client.sessions.get('default');
 console.log('Session status:', session.status); // SCAN_QR_CODE, WORKING, etc.
 ```
 
-### Phone Number Authentication
+### 📞 Phone Number Authentication
 
 ```typescript
 // Request verification code
 await client.auth.requestCode('default', {
     phoneNumber: '+1234567890',
     method: 'sms', // or 'voice'
-    code: '123456' // Enter the received code
+    code: '123456', // Enter the received code
 });
 ```
 
-## Core Features
+## 🛠️ Core Features
 
-### Session Management
+### 🎯 Session Management
 
 ```typescript
 // Create a new session
 await client.sessions.create({
     name: 'my-session',
-    start: true
+    start: true,
 });
 
 // List all sessions
@@ -118,15 +120,15 @@ const me = await client.sessions.getMe('default');
 console.log('My number:', me.id);
 ```
 
-### Sending Messages
+### 💬 Sending Messages
 
-#### Text Messages
+#### 📝 Text Messages
 
 ```typescript
 await client.messages.sendText({
     session: 'default',
     chatId: '1234567890@c.us',
-    text: 'Hello World! 🌍'
+    text: 'Hello World! 🌍',
 });
 
 // With reply
@@ -134,11 +136,11 @@ await client.messages.sendText({
     session: 'default',
     chatId: '1234567890@c.us',
     text: 'This is a reply',
-    reply_to: 'message-id'
+    reply_to: 'message-id',
 });
 ```
 
-#### Media Messages
+#### 📸 Media Messages
 
 ```typescript
 // Send image
@@ -148,9 +150,9 @@ await client.messages.sendImage({
     file: {
         mimetype: 'image/jpeg',
         filename: 'photo.jpg',
-        data: 'base64-encoded-image-data'
+        data: 'base64-encoded-image-data',
     },
-    caption: 'Check out this photo! 📸'
+    caption: 'Check out this photo! 📸',
 });
 
 // Send file/document
@@ -160,8 +162,8 @@ await client.messages.sendFile({
     file: {
         mimetype: 'application/pdf',
         filename: 'document.pdf',
-        data: 'base64-encoded-pdf-data'
-    }
+        data: 'base64-encoded-pdf-data',
+    },
 });
 
 // Send voice message
@@ -171,8 +173,8 @@ await client.messages.sendVoice({
     file: {
         mimetype: 'audio/ogg',
         filename: 'voice.ogg',
-        data: 'base64-encoded-audio-data'
-    }
+        data: 'base64-encoded-audio-data',
+    },
 });
 
 // Send video
@@ -182,13 +184,13 @@ await client.messages.sendVideo({
     file: {
         mimetype: 'video/mp4',
         filename: 'video.mp4',
-        data: 'base64-encoded-video-data'
+        data: 'base64-encoded-video-data',
     },
-    caption: 'Video caption'
+    caption: 'Video caption',
 });
 ```
 
-#### Location & Contacts
+#### 📍 Location & Contacts
 
 ```typescript
 // Send location
@@ -197,30 +199,30 @@ await client.messages.sendLocation({
     chatId: '1234567890@c.us',
     latitude: 37.7749,
     longitude: -122.4194,
-    title: 'San Francisco'
+    title: 'San Francisco',
 });
 
 // Send contact
 await client.messages.sendContactVcard({
     session: 'default',
     chatId: '1234567890@c.us',
-    contactId: '1234567890@c.us'
+    contactId: '1234567890@c.us',
 });
 ```
 
-### Chat Management
+### 💬 Chat Management
 
 ```typescript
 // List all chats
 const chats = await client.chats.list('default', {
     limit: 100,
-    offset: 0
+    offset: 0,
 });
 
 // Get chat messages
 const messages = await client.chats.getMessages('default', '1234567890@c.us', {
     limit: 50,
-    downloadMedia: false
+    downloadMedia: false,
 });
 
 // Delete chat
@@ -231,10 +233,13 @@ await client.chats.archive('default', '1234567890@c.us');
 await client.chats.unarchive('default', '1234567890@c.us');
 
 // Mark as read
-await client.chats.readMessages('default', '1234567890@c.us', ['message-id-1', 'message-id-2']);
+await client.chats.readMessages('default', '1234567890@c.us', [
+    'message-id-1',
+    'message-id-2',
+]);
 ```
 
-### Message Interactions
+### 🔄 Message Interactions
 
 ```typescript
 // Mark message as seen
@@ -242,7 +247,7 @@ await client.messages.sendSeen({
     session: 'default',
     chatId: '1234567890@c.us',
     participant: '1234567890@c.us', // For group chats
-    messageId: 'message-id'
+    messageId: 'message-id',
 });
 
 // Add reaction
@@ -250,7 +255,7 @@ await client.messages.setReaction({
     session: 'default',
     chatId: '1234567890@c.us',
     messageId: 'message-id',
-    reaction: '👍'
+    reaction: '👍',
 });
 
 // Star/unstar message
@@ -258,22 +263,22 @@ await client.messages.setStar({
     session: 'default',
     chatId: '1234567890@c.us',
     messageId: 'message-id',
-    star: true
+    star: true,
 });
 
 // Typing indicators
 await client.messages.startTyping({
     session: 'default',
-    chatId: '1234567890@c.us'
+    chatId: '1234567890@c.us',
 });
 
 await client.messages.stopTyping({
     session: 'default',
-    chatId: '1234567890@c.us'
+    chatId: '1234567890@c.us',
 });
 ```
 
-### Profile Management
+### 👤 Profile Management
 
 ```typescript
 // Get profile info
@@ -281,12 +286,12 @@ const profile = await client.profile.get('default');
 
 // Update profile name
 await client.profile.setName('default', {
-    name: 'My New Name'
+    name: 'My New Name',
 });
 
 // Update status
 await client.profile.setStatus('default', {
-    status: 'Available for chat! 💬'
+    status: 'Available for chat! 💬',
 });
 
 // Set profile picture
@@ -294,18 +299,18 @@ await client.profile.setPicture('default', {
     file: {
         mimetype: 'image/jpeg',
         filename: 'profile.jpg',
-        data: 'base64-encoded-image'
-    }
+        data: 'base64-encoded-image',
+    },
 });
 ```
 
-### Contacts
+### 📇 Contacts
 
 ```typescript
 // Get all contacts
 const contacts = await client.contacts.getAll('default', {
     limit: 100,
-    offset: 0
+    offset: 0,
 });
 
 // Check if number exists on WhatsApp
@@ -316,10 +321,13 @@ console.log('Number exists:', exists.exists);
 const contact = await client.contacts.get('1234567890@c.us', 'default');
 
 // Get profile picture
-const profilePic = await client.contacts.getProfilePicture('1234567890@c.us', 'default');
+const profilePic = await client.contacts.getProfilePicture(
+    '1234567890@c.us',
+    'default'
+);
 ```
 
-### WhatsApp Channels
+### 📢 WhatsApp Channels
 
 ```typescript
 // List channels
@@ -332,11 +340,11 @@ await client.channels.unfollow('default', 'channel-id');
 // Search channels
 const searchResults = await client.channels.searchByText('default', {
     text: 'technology',
-    limit: 10
+    limit: 10,
 });
 ```
 
-### Labels (Chat Organization)
+### 🏷️ Labels (Chat Organization)
 
 ```typescript
 // Get all labels
@@ -345,7 +353,7 @@ const labels = await client.labels.getAll('default');
 // Create label
 await client.labels.create('default', {
     name: 'Important',
-    color: 1
+    color: 1,
 });
 
 // Add label to chat
@@ -355,14 +363,14 @@ await client.labels.setChatLabels('default', '1234567890@c.us', ['label-id']);
 const labeledChats = await client.labels.getChatsByLabel('default', 'label-id');
 ```
 
-### Status Updates
+### 📊 Status Updates
 
 ```typescript
 // Send text status
 await client.status.sendText('default', {
     text: 'Hello from my status! 👋',
     backgroundColor: '#FF0000',
-    fontColor: '#FFFFFF'
+    fontColor: '#FFFFFF',
 });
 
 // Send image status
@@ -370,21 +378,21 @@ await client.status.sendImage('default', {
     file: {
         mimetype: 'image/jpeg',
         filename: 'status.jpg',
-        data: 'base64-image-data'
+        data: 'base64-image-data',
     },
-    caption: 'Status caption'
+    caption: 'Status caption',
 });
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-### Client Options
+### 🔧 Client Options
 
 ```typescript
 const client = new WahaClient({
     baseUrl: 'https://your-waha-server.com',
     apiKey: 'your-api-key',
-    timeout: 30000 // Request timeout in milliseconds (optional, default: 30000)
+    timeout: 30000, // Request timeout in milliseconds (optional, default: 30000)
 });
 
 // Update configuration at runtime
@@ -392,7 +400,7 @@ client.updateApiKey('new-api-key');
 client.updateBaseUrl('https://new-server.com');
 ```
 
-### Error Handling
+### 🚨 Error Handling
 
 ```typescript
 import { WahaApiError } from 'waha-sdk';
@@ -401,7 +409,7 @@ try {
     await client.messages.sendText({
         session: 'default',
         chatId: 'invalid-chat-id',
-        text: 'Hello'
+        text: 'Hello',
     });
 } catch (error) {
     if (error instanceof WahaApiError) {
@@ -409,7 +417,7 @@ try {
             status: error.status,
             statusText: error.statusText,
             message: error.message,
-            response: error.response
+            response: error.response,
         });
     } else {
         console.error('Unexpected error:', error);
@@ -417,9 +425,9 @@ try {
 }
 ```
 
-## Advanced Usage
+## 🎓 Advanced Usage
 
-### Custom HTTP Client Access
+### 🔌 Custom HTTP Client Access
 
 ```typescript
 // Access the underlying HTTP client for custom requests
@@ -427,7 +435,7 @@ const httpClient = client.getHttpClient();
 const response = await httpClient.get('/custom-endpoint');
 ```
 
-### File Handling
+### 📁 File Handling
 
 You can send files using either base64 encoding or URLs:
 
@@ -436,7 +444,7 @@ You can send files using either base64 encoding or URLs:
 const file = {
     mimetype: 'image/jpeg',
     filename: 'image.jpg',
-    data: 'base64-encoded-data'
+    data: 'base64-encoded-data',
 };
 
 // URL approach (if your WAHA server supports it)
@@ -446,68 +454,71 @@ await client.messages.sendImage({
     session: 'default',
     chatId: '1234567890@c.us',
     file: file, // or fileUrl
-    caption: 'Image caption'
+    caption: 'Image caption',
 });
 ```
 
-### Pagination
+### 📄 Pagination
 
 Most list endpoints support pagination:
 
 ```typescript
 const chats = await client.chats.list('default', {
-    limit: 50,        // Number of items per page
-    offset: 0,        // Number of items to skip
+    limit: 50, // Number of items per page
+    offset: 0, // Number of items to skip
     sortBy: 'lastMessageTime',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
 });
 
 console.log(`Loaded ${chats.length} chats`);
 ```
 
-### Message Filtering
+### 🔍 Message Filtering
 
 ```typescript
 const messages = await client.chats.getMessages('default', '1234567890@c.us', {
     limit: 100,
     offset: 0,
     downloadMedia: false,
-    fromMe: true,        // Only messages sent by you
-    ack: ['READ'],       // Only read messages
-    fromTimestamp: Date.now() - 86400000 // Last 24 hours
+    fromMe: true, // Only messages sent by you
+    ack: ['READ'], // Only read messages
+    fromTimestamp: Date.now() - 86400000, // Last 24 hours
 });
 ```
 
-## TypeScript Support
+## 📘 TypeScript Support
 
 The SDK is built with TypeScript and provides complete type definitions:
 
 ```typescript
-import { 
-    WahaClient, 
-    WahaClientConfig, 
-    SessionInfo, 
-    WAMessage, 
+import {
+    WahaClient,
+    WahaClientConfig,
+    SessionInfo,
+    WAMessage,
     ContactInfo,
-    ChatInfo
+    ChatInfo,
 } from 'waha-sdk';
 
 // Full type safety and IntelliSense support
 const config: WahaClientConfig = {
     baseUrl: 'http://localhost:3000',
-    apiKey: 'your-key'
+    apiKey: 'your-key',
 };
 
 const client = new WahaClient(config);
 
 // Types are automatically inferred
 const sessions: SessionInfo[] = await client.sessions.list();
-const messages: WAMessage[] = await client.chats.getMessages('default', 'chat-id');
+const messages: WAMessage[] = await client.chats.getMessages(
+    'default',
+    'chat-id'
+);
 ```
 
-## Common Use Cases
+## 💡 Common Use Cases
 
-### Chatbot Integration
+### 🤖 Chatbot Integration
 
 ```typescript
 class WhatsAppBot {
@@ -516,7 +527,7 @@ class WhatsAppBot {
     constructor() {
         this.client = new WahaClient({
             baseUrl: process.env.WAHA_URL!,
-            apiKey: process.env.WAHA_API_KEY!
+            apiKey: process.env.WAHA_API_KEY!,
         });
     }
 
@@ -525,7 +536,7 @@ class WhatsAppBot {
             await this.client.messages.sendText({
                 session: 'default',
                 chatId: message.from,
-                text: 'Available commands: /help, /status, /info'
+                text: 'Available commands: /help, /status, /info',
             });
         }
     }
@@ -535,9 +546,9 @@ class WhatsAppBot {
             await this.client.messages.sendText({
                 session: 'default',
                 chatId,
-                text: message
+                text: message,
             });
-            
+
             // Add delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -545,7 +556,7 @@ class WhatsAppBot {
 }
 ```
 
-### Customer Support Integration
+### 🎧 Customer Support Integration
 
 ```typescript
 class CustomerSupport {
@@ -554,13 +565,13 @@ class CustomerSupport {
     constructor() {
         this.client = new WahaClient({
             baseUrl: process.env.WAHA_URL!,
-            apiKey: process.env.WAHA_API_KEY!
+            apiKey: process.env.WAHA_API_KEY!,
         });
     }
 
     async createTicket(customerPhone: string, issue: string) {
         const ticketId = `TICKET-${Date.now()}`;
-        
+
         await this.client.messages.sendText({
             session: 'default',
             chatId: `${customerPhone}@c.us`,
@@ -569,32 +580,41 @@ class CustomerSupport {
 Your ticket ID: ${ticketId}
 Issue: ${issue}
 
-We'll get back to you within 24 hours.`
+We'll get back to you within 24 hours.`,
         });
 
         // Add label for organization
-        await this.client.labels.setChatLabels('default', `${customerPhone}@c.us`, ['support-ticket']);
-        
+        await this.client.labels.setChatLabels(
+            'default',
+            `${customerPhone}@c.us`,
+            ['support-ticket']
+        );
+
         return ticketId;
     }
 }
 ```
 
-## Best Practices
+## 🎯 Best Practices
 
-### 1. Error Handling
+### 1️⃣ Error Handling
+
 Always wrap API calls in try-catch blocks and handle different error types appropriately.
 
-### 2. Rate Limiting
+### 2️⃣ Rate Limiting
+
 Implement delays between bulk operations to avoid overwhelming the WhatsApp servers.
 
-### 3. Session Management
+### 3️⃣ Session Management
+
 Monitor session status and handle disconnections gracefully.
 
-### 4. Media Handling
+### 4️⃣ Media Handling
+
 For large media files, consider using URLs instead of base64 encoding to reduce memory usage.
 
-### 5. Logging
+### 5️⃣ Logging
+
 Implement proper logging for debugging and monitoring:
 
 ```typescript
@@ -605,7 +625,7 @@ const client = new WahaClient(config);
 // Add request logging
 async function sendMessageWithLogging(request: any) {
     console.log('Sending message:', request);
-    
+
     try {
         const result = await client.messages.sendText(request);
         console.log('Message sent successfully:', result);
@@ -615,7 +635,7 @@ async function sendMessageWithLogging(request: any) {
             console.error('WAHA API Error:', {
                 status: error.status,
                 message: error.message,
-                response: error.response
+                response: error.response,
             });
         }
         throw error;
@@ -623,9 +643,9 @@ async function sendMessageWithLogging(request: any) {
 }
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
-### Common Issues
+### ⚠️ Common Issues
 
 1. **Session not working**: Check session status and ensure QR code was scanned
 2. **API Key errors**: Verify your API key is correct and has proper permissions
@@ -633,7 +653,7 @@ async function sendMessageWithLogging(request: any) {
 4. **Media upload fails**: Ensure base64 data is properly formatted
 5. **Chat ID format**: Use proper format: `phone@c.us` for individual chats, `groupid@g.us` for groups
 
-### Debug Mode
+### 🐛 Debug Mode
 
 Enable detailed logging by checking response objects:
 
@@ -646,17 +666,17 @@ try {
 }
 ```
 
-## Support and Documentation
+## 📚 Support and Documentation
 
 - **WAHA Documentation**: [https://waha.devlike.pro](https://waha.devlike.pro)
 - **GitHub Issues**: Report bugs and request features
 - **Community**: Join discussions about WAHA integration
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please read our contributing guidelines and submit pull requests for any improvements.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
