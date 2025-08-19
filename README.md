@@ -1,6 +1,25 @@
-# WAHA SDK
+# WAHA SDK - TypeScript WhatsApp HTTP API Client
 
-A comprehensive TypeScript SDK for the WAHA (WhatsApp HTTP API) service with organized namespaces and full response schema support.
+<div align="center">
+  <img src="https://waha.devlike.pro/images/logo.svg" alt="WAHA Logo" width="200" height="200">
+  
+  [![npm version](https://badge.fury.io/js/waha-sdk.svg)](https://badge.fury.io/js/waha-sdk)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+</div>
+
+## Overview
+
+**WAHA SDK** is a comprehensive TypeScript/JavaScript client library for the [WAHA (WhatsApp HTTP API)](https://waha.devlike.pro) service. Send WhatsApp messages, manage sessions, handle media, and integrate WhatsApp into your applications with ease.
+
+### Key Features
+
+- 🚀 **Zero Dependencies** - Built with native fetch API
+- 📝 **Full TypeScript Support** - Complete type safety and IntelliSense
+- 🏗️ **Organized Architecture** - Clean namespace-based API design
+- ⚡ **Modern & Fast** - Uses native fetch with timeout support
+- 🔒 **Production Ready** - Comprehensive error handling and validation
+- 📱 **Complete API Coverage** - All WAHA endpoints supported
 
 ## Installation
 
@@ -8,309 +27,370 @@ A comprehensive TypeScript SDK for the WAHA (WhatsApp HTTP API) service with org
 npm install waha-sdk
 ```
 
-## Features
+```bash
+yarn add waha-sdk
+```
 
-✅ **Organized Namespaces** - Clean API structure (waha.profile, waha.sessions, etc.)  
-✅ **Axios Integration** - All responses return `response.data` automatically  
-✅ **Full TypeScript Support** - Complete type definitions and IntelliSense  
-✅ **Proper Error Handling** - Custom `WahaApiError` with detailed error info  
-✅ **Response Schemas** - Validated response types for all endpoints  
-✅ **Modern Architecture** - Built with axios, timeout support, interceptors  
-✅ **Flexible Configuration** - Configurable base URL, API key, and timeout
+```bash
+pnpm add waha-sdk
+```
+
+```bash
+bun add waha-sdk
+```
 
 ## Quick Start
 
 ```typescript
 import { WahaClient } from 'waha-sdk';
 
-const waha = new WahaClient({
-    baseUrl: 'http://localhost:3000',
-    apiKey: 'your-api-key',
-    timeout: 30000, // optional
+// Initialize the client
+const client = new WahaClient({
+    baseUrl: 'http://localhost:3000', // Your WAHA server URL
+    apiKey: 'your-api-key',           // Your API key
+    timeout: 30000                    // Optional: request timeout in ms
 });
 
-// All methods are organized by namespace
-await waha.sessions.create({ name: 'default', start: true });
-await waha.auth.getQR('default', 'image');
-await waha.messages.sendText({
-    chatId: '1234567890@c.us',
-    text: 'Hello World!',
+// Start a session
+await client.sessions.start('default');
+
+// Send a message
+await client.messages.sendText({
     session: 'default',
+    chatId: '1234567890@c.us',
+    text: 'Hello from WAHA SDK! 👋'
 });
 ```
 
-## Organized API Structure
+## Authentication
 
-The SDK is organized into logical namespaces:
-
-### 🔐 Authentication (`waha.auth`)
+### QR Code Authentication (Recommended)
 
 ```typescript
-// Get QR code for pairing
-const qr = await waha.auth.getQR('default', 'image');
+// Get QR code as base64 image
+const qrImage = await client.auth.getQR('default', 'image');
+console.log('Scan this QR code:', qrImage);
 
-// Request authentication code
-await waha.auth.requestCode('default', {
+// Or get QR code as raw text
+const qrText = await client.auth.getQR('default', 'raw');
+console.log('QR Code text:', qrText);
+
+// Check session status
+const session = await client.sessions.get('default');
+console.log('Session status:', session.status); // SCAN_QR_CODE, WORKING, etc.
+```
+
+### Phone Number Authentication
+
+```typescript
+// Request verification code
+await client.auth.requestCode('default', {
     phoneNumber: '+1234567890',
-    method: 'sms',
+    method: 'sms', // or 'voice'
+    code: '123456' // Enter the received code
 });
 ```
 
-### 🖥️ Session Management (`waha.sessions`)
+## Core Features
+
+### Session Management
 
 ```typescript
-// Create and manage sessions
-const session = await waha.sessions.create({
+// Create a new session
+await client.sessions.create({
     name: 'my-session',
-    start: true,
+    start: true
 });
-
-await waha.sessions.start('my-session');
-await waha.sessions.stop('my-session');
-await waha.sessions.restart('my-session');
-
-// Get session info
-const info = await waha.sessions.get('my-session');
-const me = await waha.sessions.getMe('my-session');
 
 // List all sessions
-const sessions = await waha.sessions.list();
+const sessions = await client.sessions.list();
+
+// Start/stop sessions
+await client.sessions.start('default');
+await client.sessions.stop('default');
+
+// Get session info
+const sessionInfo = await client.sessions.get('default');
+console.log('Session status:', sessionInfo.status);
+
+// Get current user info
+const me = await client.sessions.getMe('default');
+console.log('My number:', me.id);
 ```
 
-### 👤 Profile Management (`waha.profile`)
+### Sending Messages
+
+#### Text Messages
 
 ```typescript
-// Get profile info
-const profile = await waha.profile.get('default');
+await client.messages.sendText({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    text: 'Hello World! 🌍'
+});
 
-// Update profile
-await waha.profile.setName('default', { name: 'My Bot Name' });
-await waha.profile.setStatus('default', { status: 'Available' });
+// With reply
+await client.messages.sendText({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    text: 'This is a reply',
+    reply_to: 'message-id'
+});
+```
 
-// Manage profile picture
-await waha.profile.setPicture('default', {
+#### Media Messages
+
+```typescript
+// Send image
+await client.messages.sendImage({
+    session: 'default',
+    chatId: '1234567890@c.us',
     file: {
-        mimetype: 'image/png',
-        filename: 'avatar.png',
-        data: 'base64-encoded-data',
+        mimetype: 'image/jpeg',
+        filename: 'photo.jpg',
+        data: 'base64-encoded-image-data'
     },
+    caption: 'Check out this photo! 📸'
 });
 
-await waha.profile.deletePicture('default');
+// Send file/document
+await client.messages.sendFile({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    file: {
+        mimetype: 'application/pdf',
+        filename: 'document.pdf',
+        data: 'base64-encoded-pdf-data'
+    }
+});
+
+// Send voice message
+await client.messages.sendVoice({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    file: {
+        mimetype: 'audio/ogg',
+        filename: 'voice.ogg',
+        data: 'base64-encoded-audio-data'
+    }
+});
+
+// Send video
+await client.messages.sendVideo({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    file: {
+        mimetype: 'video/mp4',
+        filename: 'video.mp4',
+        data: 'base64-encoded-video-data'
+    },
+    caption: 'Video caption'
+});
 ```
 
-### 📤 Messaging (`waha.messages`)
+#### Location & Contacts
 
 ```typescript
-// Send different types of messages
-await waha.messages.sendText({
-    chatId: '1234567890@c.us',
-    text: 'Hello World!',
+// Send location
+await client.messages.sendLocation({
     session: 'default',
+    chatId: '1234567890@c.us',
+    latitude: 37.7749,
+    longitude: -122.4194,
+    title: 'San Francisco'
 });
 
-await waha.messages.sendImage({
-    chatId: '1234567890@c.us',
-    file: { url: 'https://example.com/image.jpg' },
-    caption: 'Check this out!',
+// Send contact
+await client.messages.sendContactVcard({
     session: 'default',
+    chatId: '1234567890@c.us',
+    contactId: '1234567890@c.us'
+});
+```
+
+### Chat Management
+
+```typescript
+// List all chats
+const chats = await client.chats.list('default', {
+    limit: 100,
+    offset: 0
 });
 
-await waha.messages.sendFile({
-    chatId: '1234567890@c.us',
-    file: { url: 'https://example.com/document.pdf' },
-    filename: 'document.pdf',
-    session: 'default',
+// Get chat messages
+const messages = await client.chats.getMessages('default', '1234567890@c.us', {
+    limit: 50,
+    downloadMedia: false
 });
 
-await waha.messages.sendLocation({
-    chatId: '1234567890@c.us',
-    latitude: 40.7128,
-    longitude: -74.006,
-    name: 'New York City',
+// Delete chat
+await client.chats.delete('default', '1234567890@c.us');
+
+// Archive/unarchive chat
+await client.chats.archive('default', '1234567890@c.us');
+await client.chats.unarchive('default', '1234567890@c.us');
+
+// Mark as read
+await client.chats.readMessages('default', '1234567890@c.us', ['message-id-1', 'message-id-2']);
+```
+
+### Message Interactions
+
+```typescript
+// Mark message as seen
+await client.messages.sendSeen({
     session: 'default',
+    chatId: '1234567890@c.us',
+    participant: '1234567890@c.us', // For group chats
+    messageId: 'message-id'
 });
 
-// Message interactions
-await waha.messages.setReaction({
+// Add reaction
+await client.messages.setReaction({
+    session: 'default',
     chatId: '1234567890@c.us',
     messageId: 'message-id',
-    reaction: '👍',
-    session: 'default',
+    reaction: '👍'
 });
 
-await waha.messages.setStar({
+// Star/unstar message
+await client.messages.setStar({
+    session: 'default',
     chatId: '1234567890@c.us',
     messageId: 'message-id',
-    star: true,
-    session: 'default',
+    star: true
 });
 
 // Typing indicators
-await waha.messages.startTyping({
-    chatId: '1234567890@c.us',
+await client.messages.startTyping({
     session: 'default',
+    chatId: '1234567890@c.us'
 });
-await waha.messages.stopTyping({
-    chatId: '1234567890@c.us',
+
+await client.messages.stopTyping({
     session: 'default',
+    chatId: '1234567890@c.us'
 });
 ```
 
-### 💬 Chat Management (`waha.chats`)
+### Profile Management
 
 ```typescript
-// Get chats
-const chats = await waha.chats.list('default', {
-    limit: 20,
-    sortBy: 'conversationTimestamp',
-    sortOrder: 'desc',
+// Get profile info
+const profile = await client.profile.get('default');
+
+// Update profile name
+await client.profile.setName('default', {
+    name: 'My New Name'
 });
 
-// Get chat overview (optimized for UI)
-const overview = await waha.chats.overview('default', { limit: 50 });
-
-// Get chat messages
-const messages = await waha.chats.getMessages('default', '1234567890@c.us', {
-    limit: 50,
-    downloadMedia: false,
-    'filter.fromMe': false,
+// Update status
+await client.profile.setStatus('default', {
+    status: 'Available for chat! 💬'
 });
 
-// Get specific message
-const message = await waha.chats.getMessage(
-    'default',
-    '1234567890@c.us',
-    'message-id'
-);
-
-// Chat operations
-await waha.chats.archive('default', '1234567890@c.us');
-await waha.chats.unarchive('default', '1234567890@c.us');
-await waha.chats.delete('default', '1234567890@c.us');
-
-// Message operations
-await waha.chats.deleteMessage('default', '1234567890@c.us', 'message-id');
-await waha.chats.editMessage('default', '1234567890@c.us', 'message-id', {
-    text: 'Updated text',
-});
-
-await waha.chats.pinMessage('default', '1234567890@c.us', 'message-id', {
-    duration: 86400, // 24 hours
+// Set profile picture
+await client.profile.setPicture('default', {
+    file: {
+        mimetype: 'image/jpeg',
+        filename: 'profile.jpg',
+        data: 'base64-encoded-image'
+    }
 });
 ```
 
-### 👥 Contact Management (`waha.contacts`)
+### Contacts
 
 ```typescript
+// Get all contacts
+const contacts = await client.contacts.getAll('default', {
+    limit: 100,
+    offset: 0
+});
+
 // Check if number exists on WhatsApp
-const exists = await waha.contacts.checkExists('1234567890', 'default');
+const exists = await client.contacts.checkExists('+1234567890', 'default');
+console.log('Number exists:', exists.exists);
 
 // Get contact info
-const contact = await waha.contacts.get('1234567890@c.us', 'default');
+const contact = await client.contacts.get('1234567890@c.us', 'default');
 
-// Get all contacts
-const contacts = await waha.contacts.getAll('default', {
-    limit: 100,
-    sortBy: 'name',
-    sortOrder: 'asc',
-});
-
-// Get contact details
-const about = await waha.contacts.getAbout('1234567890@c.us', 'default');
-const picture = await waha.contacts.getProfilePicture(
-    '1234567890@c.us',
-    'default'
-);
+// Get profile picture
+const profilePic = await client.contacts.getProfilePicture('1234567890@c.us', 'default');
 ```
 
-### 📢 Channel Management (`waha.channels`)
+### WhatsApp Channels
 
 ```typescript
-// Get channels
-const channels = await waha.channels.list('default');
-const ownedChannels = await waha.channels.list('default', 'OWNER');
+// List channels
+const channels = await client.channels.list('default', 'SUBSCRIBER');
 
-// Create and manage channels
-const channel = await waha.channels.create('default', {
-    name: 'My Channel',
-    description: 'Channel description',
-});
-
-// Channel operations
-await waha.channels.follow('default', 'channel-id');
-await waha.channels.unfollow('default', 'channel-id');
-await waha.channels.mute('default', 'channel-id');
-
-// Preview messages
-const messages = await waha.channels.previewMessages(
-    'default',
-    'channel-id',
-    false,
-    10
-);
+// Follow/unfollow channel
+await client.channels.follow('default', 'channel-id');
+await client.channels.unfollow('default', 'channel-id');
 
 // Search channels
-const searchResult = await waha.channels.searchByText('default', {
-    query: 'news',
-    limit: 20,
+const searchResults = await client.channels.searchByText('default', {
+    text: 'technology',
+    limit: 10
 });
 ```
 
-### 🏷️ Label Management (`waha.labels`)
+### Labels (Chat Organization)
 
 ```typescript
 // Get all labels
-const labels = await waha.labels.getAll('default');
+const labels = await client.labels.getAll('default');
 
-// Create and manage labels
-const label = await waha.labels.create('default', {
+// Create label
+await client.labels.create('default', {
     name: 'Important',
-    color: '#FF0000',
+    color: 1
 });
 
-await waha.labels.update('default', 'label-id', {
-    name: 'Very Important',
-    color: '#FF5722',
-});
-
-// Assign labels to chats
-await waha.labels.setChatLabels('default', '1234567890@c.us', {
-    labels: ['label-id-1', 'label-id-2'],
-});
+// Add label to chat
+await client.labels.setChatLabels('default', '1234567890@c.us', ['label-id']);
 
 // Get chats by label
-const labeledChats = await waha.labels.getChatsByLabel('default', 'label-id');
+const labeledChats = await client.labels.getChatsByLabel('default', 'label-id');
 ```
 
-### 🟢 Status Updates (`waha.status`)
+### Status Updates
 
 ```typescript
-// Send different status types
-await waha.status.sendText('default', {
-    text: 'Hello World!',
-    backgroundColor: '#FF5722',
-    textColor: '#FFFFFF',
+// Send text status
+await client.status.sendText('default', {
+    text: 'Hello from my status! 👋',
+    backgroundColor: '#FF0000',
+    fontColor: '#FFFFFF'
 });
 
-await waha.status.sendImage('default', {
-    file: { url: 'https://example.com/image.jpg' },
-    caption: 'My status update',
+// Send image status
+await client.status.sendImage('default', {
+    file: {
+        mimetype: 'image/jpeg',
+        filename: 'status.jpg',
+        data: 'base64-image-data'
+    },
+    caption: 'Status caption'
 });
-
-await waha.status.sendVideo('default', {
-    file: { url: 'https://example.com/video.mp4' },
-    caption: 'Video status',
-});
-
-// Delete status
-await waha.status.delete('default', { id: 'status-id' });
-
-// Generate message ID for batch operations
-const messageId = await waha.status.getNewMessageId('default');
 ```
 
-## Advanced Usage
+## Configuration
+
+### Client Options
+
+```typescript
+const client = new WahaClient({
+    baseUrl: 'https://your-waha-server.com',
+    apiKey: 'your-api-key',
+    timeout: 30000 // Request timeout in milliseconds (optional, default: 30000)
+});
+
+// Update configuration at runtime
+client.updateApiKey('new-api-key');
+client.updateBaseUrl('https://new-server.com');
+```
 
 ### Error Handling
 
@@ -318,10 +398,10 @@ const messageId = await waha.status.getNewMessageId('default');
 import { WahaApiError } from 'waha-sdk';
 
 try {
-    const message = await waha.messages.sendText({
-        chatId: '1234567890@c.us',
-        text: 'Hello!',
+    await client.messages.sendText({
         session: 'default',
+        chatId: 'invalid-chat-id',
+        text: 'Hello'
     });
 } catch (error) {
     if (error instanceof WahaApiError) {
@@ -329,123 +409,259 @@ try {
             status: error.status,
             statusText: error.statusText,
             message: error.message,
-            response: error.response, // Full response data
+            response: error.response
         });
     } else {
-        console.error('Other error:', error.message);
+        console.error('Unexpected error:', error);
     }
 }
 ```
 
-### Response Data Access
+## Advanced Usage
 
-With axios integration, all responses automatically return the `data` property:
-
-```typescript
-// Response structure: { data: WAMessage, status: 200, headers: {...} }
-// But you get the WAMessage directly:
-const message: WAMessage = await waha.messages.sendText({...});
-
-// Same for arrays:
-const chats: ChatSummary[] = await waha.chats.overview('default');
-```
-
-### Configuration Management
+### Custom HTTP Client Access
 
 ```typescript
-const waha = new WahaClient({
-    baseUrl: 'http://localhost:3000',
-    apiKey: 'initial-key',
-    timeout: 30000,
-});
-
-// Update configuration dynamically
-waha.updateApiKey('new-api-key');
-waha.updateBaseUrl('https://api.example.com');
-
-// Access raw axios instance for custom requests
-const httpClient = waha.getHttpClient();
+// Access the underlying HTTP client for custom requests
+const httpClient = client.getHttpClient();
 const response = await httpClient.get('/custom-endpoint');
 ```
 
-### Batch Operations
+### File Handling
+
+You can send files using either base64 encoding or URLs:
 
 ```typescript
-// Process multiple chats
-const chats = await waha.chats.overview('default', { limit: 100 });
+// Base64 approach
+const file = {
+    mimetype: 'image/jpeg',
+    filename: 'image.jpg',
+    data: 'base64-encoded-data'
+};
 
-for (const chat of chats) {
-    if (chat.unreadCount > 0) {
-        await waha.chats.readMessages('default', chat.id);
-        console.log(`Marked ${chat.name} as read`);
-    }
-}
+// URL approach (if your WAHA server supports it)
+const fileUrl = 'https://example.com/image.jpg';
 
-// Manage multiple sessions
-const sessions = await waha.sessions.list(true);
-for (const session of sessions) {
-    if (session.status === 'STOPPED') {
-        await waha.sessions.start(session.name);
-    }
-}
+await client.messages.sendImage({
+    session: 'default',
+    chatId: '1234567890@c.us',
+    file: file, // or fileUrl
+    caption: 'Image caption'
+});
+```
+
+### Pagination
+
+Most list endpoints support pagination:
+
+```typescript
+const chats = await client.chats.list('default', {
+    limit: 50,        // Number of items per page
+    offset: 0,        // Number of items to skip
+    sortBy: 'lastMessageTime',
+    sortOrder: 'desc'
+});
+
+console.log(`Loaded ${chats.length} chats`);
+```
+
+### Message Filtering
+
+```typescript
+const messages = await client.chats.getMessages('default', '1234567890@c.us', {
+    limit: 100,
+    offset: 0,
+    downloadMedia: false,
+    fromMe: true,        // Only messages sent by you
+    ack: ['READ'],       // Only read messages
+    fromTimestamp: Date.now() - 86400000 // Last 24 hours
+});
 ```
 
 ## TypeScript Support
 
-Full TypeScript definitions are included:
+The SDK is built with TypeScript and provides complete type definitions:
 
 ```typescript
-import type {
-    WAMessage,
-    SessionInfo,
-    ChatSummary,
-    MessageTextRequest,
-    WahaClientConfig,
+import { 
+    WahaClient, 
+    WahaClientConfig, 
+    SessionInfo, 
+    WAMessage, 
+    ContactInfo,
+    ChatInfo
 } from 'waha-sdk';
 
-// All types are properly inferred
-const request: MessageTextRequest = {
-    chatId: '1234567890@c.us',
-    text: 'Hello!',
-    session: 'default',
+// Full type safety and IntelliSense support
+const config: WahaClientConfig = {
+    baseUrl: 'http://localhost:3000',
+    apiKey: 'your-key'
 };
 
-const message: WAMessage = await waha.messages.sendText(request);
+const client = new WahaClient(config);
+
+// Types are automatically inferred
+const sessions: SessionInfo[] = await client.sessions.list();
+const messages: WAMessage[] = await client.chats.getMessages('default', 'chat-id');
 ```
 
-## Response Schemas
+## Common Use Cases
 
-The SDK includes proper response schemas for all endpoints. Every response is typed and validated:
+### Chatbot Integration
 
 ```typescript
-interface WAMessage {
-    id: string;
-    timestamp: number;
-    from: string;
-    fromMe: boolean;
-    to: string;
-    body?: string;
-    type: 'chat' | 'image' | 'video' | 'audio' | 'document' | 'location';
-    ack?: 'ERROR' | 'PENDING' | 'SERVER' | 'DEVICE' | 'READ' | 'PLAYED';
-    hasMedia: boolean;
-    // ... more properties
+class WhatsAppBot {
+    private client: WahaClient;
+
+    constructor() {
+        this.client = new WahaClient({
+            baseUrl: process.env.WAHA_URL!,
+            apiKey: process.env.WAHA_API_KEY!
+        });
+    }
+
+    async handleIncomingMessage(message: WAMessage) {
+        if (message.body.startsWith('/help')) {
+            await this.client.messages.sendText({
+                session: 'default',
+                chatId: message.from,
+                text: 'Available commands: /help, /status, /info'
+            });
+        }
+    }
+
+    async broadcastMessage(chatIds: string[], message: string) {
+        for (const chatId of chatIds) {
+            await this.client.messages.sendText({
+                session: 'default',
+                chatId,
+                text: message
+            });
+            
+            // Add delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
 }
 ```
 
-## API Coverage
+### Customer Support Integration
 
-This SDK covers all WAHA API endpoints:
+```typescript
+class CustomerSupport {
+    private client: WahaClient;
 
-- ✅ Authentication (QR code, request code)
-- ✅ Session management (create, start, stop, restart, delete)
-- ✅ Messaging (text, images, files, voice, video, location, contacts)
-- ✅ Chat operations (list, messages, archive, pin, delete)
-- ✅ Contact management (check existence, get info, profile pictures)
-- ✅ Profile management (get/set name, status, picture)
-- ✅ Channel operations (create, follow, search, messages)
-- ✅ Label management (create, assign, filter)
-- ✅ Status updates (text, image, video, voice)
+    constructor() {
+        this.client = new WahaClient({
+            baseUrl: process.env.WAHA_URL!,
+            apiKey: process.env.WAHA_API_KEY!
+        });
+    }
+
+    async createTicket(customerPhone: string, issue: string) {
+        const ticketId = `TICKET-${Date.now()}`;
+        
+        await this.client.messages.sendText({
+            session: 'default',
+            chatId: `${customerPhone}@c.us`,
+            text: `Thank you for contacting us! 
+
+Your ticket ID: ${ticketId}
+Issue: ${issue}
+
+We'll get back to you within 24 hours.`
+        });
+
+        // Add label for organization
+        await this.client.labels.setChatLabels('default', `${customerPhone}@c.us`, ['support-ticket']);
+        
+        return ticketId;
+    }
+}
+```
+
+## Best Practices
+
+### 1. Error Handling
+Always wrap API calls in try-catch blocks and handle different error types appropriately.
+
+### 2. Rate Limiting
+Implement delays between bulk operations to avoid overwhelming the WhatsApp servers.
+
+### 3. Session Management
+Monitor session status and handle disconnections gracefully.
+
+### 4. Media Handling
+For large media files, consider using URLs instead of base64 encoding to reduce memory usage.
+
+### 5. Logging
+Implement proper logging for debugging and monitoring:
+
+```typescript
+import { WahaClient, WahaApiError } from 'waha-sdk';
+
+const client = new WahaClient(config);
+
+// Add request logging
+async function sendMessageWithLogging(request: any) {
+    console.log('Sending message:', request);
+    
+    try {
+        const result = await client.messages.sendText(request);
+        console.log('Message sent successfully:', result);
+        return result;
+    } catch (error) {
+        if (error instanceof WahaApiError) {
+            console.error('WAHA API Error:', {
+                status: error.status,
+                message: error.message,
+                response: error.response
+            });
+        }
+        throw error;
+    }
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Session not working**: Check session status and ensure QR code was scanned
+2. **API Key errors**: Verify your API key is correct and has proper permissions
+3. **Timeout errors**: Increase timeout value or check network connectivity
+4. **Media upload fails**: Ensure base64 data is properly formatted
+5. **Chat ID format**: Use proper format: `phone@c.us` for individual chats, `groupid@g.us` for groups
+
+### Debug Mode
+
+Enable detailed logging by checking response objects:
+
+```typescript
+try {
+    const response = await client.sessions.get('default');
+    console.log('Full response:', response);
+} catch (error) {
+    console.error('Detailed error:', error);
+}
+```
+
+## Support and Documentation
+
+- **WAHA Documentation**: [https://waha.devlike.pro](https://waha.devlike.pro)
+- **GitHub Issues**: Report bugs and request features
+- **Community**: Join discussions about WAHA integration
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines and submit pull requests for any improvements.
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  Made with ❤️ by the Wavez Team
+</div>
