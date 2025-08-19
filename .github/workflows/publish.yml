@@ -1,0 +1,219 @@
+name: Publish to NPM
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        - prerelease
+
+jobs:
+  publish:
+    # Only run if PR was merged from develop to main
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun test
+
+      - name: Run linting
+        run: bun run lint
+
+      - name: Run type checking
+        run: bun run type-check
+
+      - name: Build project
+        run: bun run build
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: version
+        run: |
+          # Determine version bump type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          else
+            # Auto-determine based on PR labels or commit messages
+            if [[ "${{ github.event.pull_request.title }}" =~ ^(feat|feature).*$ ]] || \
+               [[ "${{ github.event.pull_request.body }}" =~ BREAKING[[:space:]]CHANGE ]] || \
+               [[ "${{ github.event.pull_request.labels.*.name }}" =~ "breaking" ]]; then
+              VERSION_TYPE="minor"
+            elif [[ "${{ github.event.pull_request.labels.*.name }}" =~ "major" ]]; then
+              VERSION_TYPE="major"
+            else
+              VERSION_TYPE="patch"
+            fi
+          fi
+          
+          echo "Version bump type: $VERSION_TYPE"
+          
+          # Bump version using npm (works with bun too)
+          NEW_VERSION=$(npm version $VERSION_TYPE --no-git-tag-version)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          
+          # Extract version number without 'v' prefix
+          VERSION_NUMBER=${NEW_VERSION#v}
+          echo "version_number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Update CHANGELOG
+        run: |
+          # Create or update CHANGELOG.md
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          # Get PR information
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          RELEASE_DATE=$(date +%Y-%m-%d)
+          
+          # Prepare changelog entry
+          TEMP_FILE=$(mktemp)
+          echo "# Changelog" > $TEMP_FILE
+          echo "" >> $TEMP_FILE
+          echo "## [${{ steps.version.outputs.version_number }}] - $RELEASE_DATE" >> $TEMP_FILE
+          echo "" >> $TEMP_FILE
+          echo "### Changes" >> $TEMP_FILE
+          echo "- $PR_TITLE ([#$PR_NUMBER]($PR_URL))" >> $TEMP_FILE
+          echo "" >> $TEMP_FILE
+          
+          # Append existing changelog content (skip first line if it's "# Changelog")
+          if [ -f CHANGELOG.md ]; then
+            tail -n +3 CHANGELOG.md >> $TEMP_FILE
+          fi
+          
+          # Replace original changelog
+          mv $TEMP_FILE CHANGELOG.md
+
+      - name: Commit version bump and changelog
+        run: |
+          git add package.json CHANGELOG.md
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }} [skip ci]"
+          git tag ${{ steps.version.outputs.new_version }}
+          git push origin main
+          git push origin ${{ steps.version.outputs.new_version }}
+
+      - name: Setup Node.js for NPM publishing
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.new_version }}
+          release_name: Release ${{ steps.version.outputs.new_version }}
+          body: |
+            ## Changes in ${{ steps.version.outputs.new_version }}
+            
+            **Merged PR:** ${{ github.event.pull_request.title }} ([#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}))
+            
+            ### What's Changed
+            ${{ github.event.pull_request.body }}
+            
+            ### Installation
+            ```bash
+            npm install waha-sdk@${{ steps.version.outputs.version_number }}
+            ```
+            
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.version.outputs.version_number }}...HEAD
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version_type, 'prerelease') }}
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ github.event.pull_request.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Published Successfully!**
+              
+              **Version:** \`${{ steps.version.outputs.new_version }}\`
+              **NPM Package:** https://www.npmjs.com/package/waha-sdk
+              **GitHub Release:** https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.new_version }}
+              
+              ### Install the new version:
+              \`\`\`bash
+              npm install waha-sdk@${{ steps.version.outputs.version_number }}
+              \`\`\`
+              
+              Thanks for contributing! 🎉`
+            })
+
+  # Fallback job for non-develop PRs
+  validate:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'develop'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Comment on non-develop PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ github.event.pull_request.number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `ℹ️ **No Publication Triggered**
+              
+              This PR was not merged from the \`develop\` branch to \`main\`, so no new version will be published.
+              
+              To trigger a release:
+              1. Create a PR from \`develop\` → \`main\`
+              2. Merge the PR
+              3. The package will be automatically published to NPM
+              
+              Current branch: \`${{ github.event.pull_request.head.ref }}\` → \`${{ github.event.pull_request.base.ref }}\``
+            })

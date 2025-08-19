@@ -12,7 +12,7 @@ export class ProfileNamespace {
 
     async get(session: string = 'default'): Promise<MyProfile> {
         const response = await this.http.get(`/api/${session}/profile`);
-        return response.data;
+        return response.data as MyProfile;
     }
 
     async setName(
@@ -23,7 +23,7 @@ export class ProfileNamespace {
             `/api/${session}/profile/name`,
             request
         );
-        return response.data;
+        return response.data as Result;
     }
 
     async setStatus(
@@ -34,7 +34,7 @@ export class ProfileNamespace {
             `/api/${session}/profile/status`,
             request
         );
-        return response.data;
+        return response.data as Result;
     }
 
     async setPicture(
@@ -45,13 +45,13 @@ export class ProfileNamespace {
             `/api/${session}/profile/picture`,
             request
         );
-        return response.data;
+        return response.data as Result;
     }
 
     async deletePicture(session: string = 'default'): Promise<Result> {
         const response = await this.http.delete(
             `/api/${session}/profile/picture`
         );
-        return response.data;
+        return response.data as Result;
     }
 }

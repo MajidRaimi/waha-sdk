@@ -11,7 +11,7 @@ export class ContactsNamespace {
         const response = await this.http.get('/api/contacts/all', {
             params: { session, ...query },
         });
-        return response.data;
+        return response.data as Contact[];
     }
 
     async get(
@@ -21,7 +21,7 @@ export class ContactsNamespace {
         const response = await this.http.get('/api/contacts', {
             params: { contactId, session },
         });
-        return response.data;
+        return response.data as Contact;
     }
 
     async checkExists(
@@ -31,7 +31,7 @@ export class ContactsNamespace {
         const response = await this.http.get('/api/contacts/check-exists', {
             params: { phone, session },
         });
-        return response.data;
+        return response.data as WANumberExistResult;
     }
 
     async getAbout(
@@ -41,7 +41,7 @@ export class ContactsNamespace {
         const response = await this.http.get('/api/contacts/about', {
             params: { contactId, session },
         });
-        return response.data;
+        return response.data as { about?: string };
     }
 
     async getProfilePicture(
@@ -52,6 +52,6 @@ export class ContactsNamespace {
         const response = await this.http.get('/api/contacts/profile-picture', {
             params: { contactId, session, refresh },
         });
-        return response.data;
+        return response.data as { url?: string };
     }
 }

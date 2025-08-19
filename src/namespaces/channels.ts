@@ -21,7 +21,7 @@ export class ChannelsNamespace {
         const response = await this.http.get(`/api/${session}/channels`, {
             params: role ? { role } : undefined,
         });
-        return response.data;
+        return response.data as Channel[];
     }
 
     async create(
@@ -32,12 +32,12 @@ export class ChannelsNamespace {
             `/api/${session}/channels`,
             request
         );
-        return response.data;
+        return response.data as Channel;
     }
 
     async get(session: string = 'default', id: string): Promise<Channel> {
         const response = await this.http.get(`/api/${session}/channels/${id}`);
-        return response.data;
+        return response.data as Channel;
     }
 
     async delete(session: string = 'default', id: string): Promise<void> {
@@ -56,7 +56,7 @@ export class ChannelsNamespace {
                 params: { downloadMedia, limit },
             }
         );
-        return response.data;
+        return response.data as ChannelMessage[];
     }
 
     async follow(session: string = 'default', id: string): Promise<void> {
@@ -83,7 +83,7 @@ export class ChannelsNamespace {
             `/api/${session}/channels/search/by-view`,
             request
         );
-        return response.data;
+        return response.data as ChannelListResult;
     }
 
     async searchByText(
@@ -94,14 +94,14 @@ export class ChannelsNamespace {
             `/api/${session}/channels/search/by-text`,
             request
         );
-        return response.data;
+        return response.data as ChannelListResult;
     }
 
     async getSearchViews(session: string = 'default'): Promise<ChannelView[]> {
         const response = await this.http.get(
             `/api/${session}/channels/search/views`
         );
-        return response.data;
+        return response.data as ChannelView[];
     }
 
     async getSearchCountries(
@@ -110,7 +110,7 @@ export class ChannelsNamespace {
         const response = await this.http.get(
             `/api/${session}/channels/search/countries`
         );
-        return response.data;
+        return response.data as ChannelCountry[];
     }
 
     async getSearchCategories(
@@ -119,6 +119,6 @@ export class ChannelsNamespace {
         const response = await this.http.get(
             `/api/${session}/channels/search/categories`
         );
-        return response.data;
+        return response.data as ChannelCategory[];
     }
 }

@@ -18,9 +18,9 @@ export class ChatsNamespace {
         query?: ChatsQuery
     ): Promise<ChatSummary[]> {
         const response = await this.http.get(`/api/${session}/chats`, {
-            params: query,
+            params: query as Record<string, unknown>,
         });
-        return response.data;
+        return response.data as ChatSummary[];
     }
 
     async overview(
@@ -37,15 +37,15 @@ export class ChatsNamespace {
                     ids: query.ids,
                 }
             );
-            return response.data;
+            return response.data as ChatSummary[];
         } else {
             const response = await this.http.get(
                 `/api/${session}/chats/overview`,
                 {
-                    params: query,
+                    params: query as Record<string, unknown>,
                 }
             );
-            return response.data;
+            return response.data as ChatSummary[];
         }
     }
 
@@ -64,7 +64,7 @@ export class ChatsNamespace {
                 params: { refresh },
             }
         );
-        return response.data;
+        return response.data as { url?: string };
     }
 
     async getMessages(
@@ -75,10 +75,10 @@ export class ChatsNamespace {
         const response = await this.http.get(
             `/api/${session}/chats/${chatId}/messages`,
             {
-                params: query,
+                params: query as Record<string, unknown>,
             }
         );
-        return response.data;
+        return response.data as WAMessage[];
     }
 
     async clearMessages(
@@ -101,7 +101,7 @@ export class ChatsNamespace {
                 params: { messages, days },
             }
         );
-        return response.data;
+        return response.data as ReadChatMessagesResponse;
     }
 
     async getMessage(
@@ -116,7 +116,7 @@ export class ChatsNamespace {
                 params: { downloadMedia },
             }
         );
-        return response.data;
+        return response.data as WAMessage;
     }
 
     async deleteMessage(

@@ -11,24 +11,24 @@ export interface QRCodeValue {
 export interface SessionInfo {
     name: string;
     status: 'STOPPED' | 'STARTING' | 'SCAN_QR_CODE' | 'WORKING' | 'FAILED';
-    config?: any;
+    config?: Record<string, unknown>;
     me?: Contact;
 }
 
 export interface SessionDTO {
     name: string;
     status: string;
-    config?: any;
+    config?: Record<string, unknown>;
 }
 
 export interface SessionCreateRequest {
     name: string;
-    config?: any;
+    config?: Record<string, unknown>;
     start?: boolean;
 }
 
 export interface SessionUpdateRequest {
-    config?: any;
+    config?: Record<string, unknown>;
 }
 
 export interface MeInfo {
@@ -262,7 +262,7 @@ export interface SetLabelsRequest {
 
 export type MessageFormat = 'image' | 'raw';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
     data?: T;
     error?: string;
     status: number;

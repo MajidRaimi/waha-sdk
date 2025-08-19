@@ -1,2 +1,1 @@
-echo "Pre-commit hook"
-echo "Skipped my @MajidRaimi 👨‍💻"
+bun run lint:staged

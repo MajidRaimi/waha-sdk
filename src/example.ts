@@ -1,133 +1,94 @@
 import { WahaClient, WahaApiError } from './client';
 
-// Example usage of the WAHA SDK with organized namespaces
-async function example() {
+async function setupSession(client: WahaClient): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log('Setting up session...');
+
+    const session = await client.sessions.create({
+        name: 'default',
+        start: true,
+    });
+    const qr = await client.auth.getQR('default', 'raw');
+
+    // eslint-disable-next-line no-console
+    console.log('Session created:', session);
+    // eslint-disable-next-line no-console
+    console.log('QR Code:', qr);
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+}
+
+async function demonstrateMessaging(client: WahaClient): Promise<void> {
+    const sessionInfo = await client.sessions.get('default');
+
+    if (sessionInfo.status === 'WORKING') {
+        // eslint-disable-next-line no-console
+        console.log('Sending messages...');
+
+        await client.messages.sendText({
+            chatId: '1234567890@c.us',
+            text: 'Hello from WAHA SDK!',
+            session: 'default',
+        });
+
+        await client.messages.sendImage({
+            chatId: '1234567890@c.us',
+            file: { url: 'https://example.com/image.jpg' },
+            caption: 'Check this out!',
+            session: 'default',
+        });
+    }
+}
+
+async function demonstrateDataOperations(client: WahaClient): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log('Fetching data...');
+
+    const chats = await client.chats.overview('default', { limit: 10 });
+    const contacts = await client.contacts.getAll('default', { limit: 50 });
+    const labels = await client.labels.getAll('default');
+
+    // eslint-disable-next-line no-console
+    console.log(
+        `Found: ${chats.length} chats, ${contacts.length} contacts, ${labels.length} labels`
+    );
+}
+
+function handleExampleError(error: unknown): void {
+    if (error instanceof WahaApiError) {
+        // eslint-disable-next-line no-console
+        console.error('WAHA API Error:', {
+            status: error.status,
+            message: error.message,
+        });
+    } else {
+        // eslint-disable-next-line no-console
+        console.error('Other error:', error);
+    }
+}
+
+/**
+ * Example demonstrating basic WAHA SDK usage
+ */
+export async function basicExample(): Promise<void> {
     const client = new WahaClient({
         baseUrl: 'http://localhost:3000',
         apiKey: 'your-api-key-here',
     });
 
     try {
-        // Session Management (waha.sessions.*)
-        console.log('Creating session...');
-        const session = await client.sessions.create({
-            name: 'default',
-            start: true,
-        });
-        console.log('Session created:', session);
-
-        // Authentication (waha.auth.*)
-        console.log('Getting QR code...');
-        const qr = await client.auth.getQR('default', 'raw');
-        console.log('QR Code:', qr);
-
-        // Wait for authentication...
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
-        // Check session status
-        const sessionInfo = await client.sessions.get('default');
-        console.log('Session status:', sessionInfo.status);
-
-        if (sessionInfo.status === 'WORKING') {
-            // Messages (waha.messages.*)
-            console.log('Sending test message...');
-            const message = await client.messages.sendText({
-                chatId: '1234567890@c.us', // Replace with actual chat ID
-                text: 'Hello from WAHA SDK!',
-                session: 'default',
-            });
-            console.log('Message sent:', message);
-
-            // Send an image
-            await client.messages.sendImage({
-                chatId: '1234567890@c.us',
-                file: {
-                    url: 'https://example.com/image.jpg',
-                },
-                caption: 'Check this out!',
-                session: 'default',
-            });
-
-            // Chats (waha.chats.*)
-            console.log('Getting chats...');
-            const chats = await client.chats.overview('default', {
-                limit: 10,
-            });
-            console.log(`Found ${chats.length} chats`);
-
-            // Get messages from a specific chat
-            const messages = await client.chats.getMessages(
-                'default',
-                '1234567890@c.us',
-                {
-                    limit: 20,
-                    downloadMedia: false,
-                }
-            );
-            console.log(`Found ${messages.length} messages`);
-
-            // Profile (waha.profile.*)
-            console.log('Getting profile...');
-            const profile = await client.profile.get('default');
-            console.log('Profile:', profile);
-
-            // Update profile name
-            await client.profile.setName('default', {
-                name: 'My Bot Name',
-            });
-
-            // Contacts (waha.contacts.*)
-            console.log('Checking if number exists...');
-            const exists = await client.contacts.checkExists(
-                '1234567890',
-                'default'
-            );
-            console.log('Number exists:', exists.numberExists);
-
-            // Get all contacts
-            const contacts = await client.contacts.getAll('default', {
-                limit: 50,
-                sortBy: 'name',
-            });
-            console.log(`Found ${contacts.length} contacts`);
-
-            // Labels (waha.labels.*)
-            const labels = await client.labels.getAll('default');
-            console.log('Available labels:', labels);
-
-            // Create a new label
-            const newLabel = await client.labels.create('default', {
-                name: 'Important',
-                color: '#FF0000',
-            });
-            console.log('Created label:', newLabel);
-
-            // Status updates (waha.status.*)
-            await client.status.sendText('default', {
-                text: 'Hello World!',
-                backgroundColor: '#FF5722',
-            });
-
-            // Channels (waha.channels.*)
-            const channels = await client.channels.list('default');
-            console.log('My channels:', channels);
-        }
+        await setupSession(client);
+        await demonstrateMessaging(client);
+        await demonstrateDataOperations(client);
     } catch (error) {
-        if (error instanceof WahaApiError) {
-            console.error('WAHA API Error:', {
-                status: error.status,
-                statusText: error.statusText,
-                message: error.message,
-                response: error.response,
-            });
-        } else {
-            console.error('Other error:', error);
-        }
+        handleExampleError(error);
     }
 }
 
-// Advanced usage example
-async function advancedExample() {
+/**
+ * Advanced example demonstrating bulk operations and session management
+ */
+export async function advancedExample(): Promise<void> {
     const client = new WahaClient({
         baseUrl: 'http://localhost:3000',
         apiKey: 'your-api-key-here',
@@ -137,12 +98,14 @@ async function advancedExample() {
     try {
         // Get multiple sessions
         const sessions = await client.sessions.list(true); // Include stopped sessions
+        // eslint-disable-next-line no-console
         console.log('All sessions:', sessions);
 
         // Manage multiple sessions
         for (const session of sessions) {
             if (session.status === 'STOPPED') {
                 await client.sessions.start(session.name);
+                // eslint-disable-next-line no-console
                 console.log(`Started session: ${session.name}`);
             }
         }
@@ -156,6 +119,7 @@ async function advancedExample() {
             if (chat.unreadCount > 0) {
                 // Mark as read
                 await client.chats.readMessages('default', chat.id);
+                // eslint-disable-next-line no-console
                 console.log(`Marked ${chat.name} as read`);
             }
         }
@@ -165,8 +129,9 @@ async function advancedExample() {
 
         // Access raw http client for custom requests
         const httpClient = client.getHttpClient();
-        const customResponse = await httpClient.get('/custom-endpoint');
+        const _customResponse = await httpClient.get('/custom-endpoint');
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Advanced example error:', error);
     }
 }

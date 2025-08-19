@@ -6,7 +6,7 @@ export class LabelsNamespace {
 
     async getAll(session: string = 'default'): Promise<Label[]> {
         const response = await this.http.get(`/api/${session}/labels`);
-        return response.data;
+        return response.data as Label[];
     }
 
     async create(
@@ -14,7 +14,7 @@ export class LabelsNamespace {
         label: LabelBody
     ): Promise<Label> {
         const response = await this.http.post(`/api/${session}/labels`, label);
-        return response.data;
+        return response.data as Label;
     }
 
     async update(
@@ -26,7 +26,7 @@ export class LabelsNamespace {
             `/api/${session}/labels/${labelId}`,
             label
         );
-        return response.data;
+        return response.data as Label;
     }
 
     async delete(session: string = 'default', labelId: string): Promise<void> {
@@ -40,7 +40,7 @@ export class LabelsNamespace {
         const response = await this.http.get(
             `/api/${session}/labels/chats/${chatId}`
         );
-        return response.data;
+        return response.data as Label[];
     }
 
     async setChatLabels(
@@ -58,6 +58,6 @@ export class LabelsNamespace {
         const response = await this.http.get(
             `/api/${session}/labels/${labelId}/chats`
         );
-        return response.data;
+        return response.data as ChatSummary[];
     }
 }
