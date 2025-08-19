@@ -1,0 +1,23 @@
+[test]
+# Test file patterns
+testMatch = ["**/__tests__/**/*.test.ts", "**/*.test.ts", "**/*.spec.ts"]
+
+# Setup files
+setupFiles = ["./src/__tests__/setup.ts"]
+
+# Coverage settings
+coverage = true
+coverageReporter = ["text"]
+coverageDirectory = "coverage"
+
+# Test environment
+testEnvironment = "node"
+
+# TypeScript support
+typescript = true
+
+# Mock settings
+mock = true
+
+# Timeout settings
+timeout = 30000
