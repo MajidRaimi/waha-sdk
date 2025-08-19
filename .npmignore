@@ -1,0 +1,52 @@
+# Source files that shouldn't be published
+src/
+*.test.ts
+*.spec.ts
+__tests__/
+test/
+tests/
+coverage/
+
+# Development files
+.github/
+.vscode/
+.husky/
+node_modules/
+bun.lockb
+tsconfig.json
+.eslintrc.*
+.prettierrc*
+.gitignore
+
+# Documentation and config that's not needed in package
+CHANGELOG.md
+*.md
+!README.md
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.swp
+*.swo
+
+# Log files
+*.log
+logs/
+
+# Environment files
+.env*
+
+# Build artifacts (keep only dist/)
+build/
+out/
+
+# Development scripts
+scripts/
+tools/
+
+# Linting and formatting
+.eslintcache
+.prettierignore
